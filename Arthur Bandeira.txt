@@ -1,0 +1,11 @@
+Nome: Arthur Bandeira
+Email: arthurbmm76@gmail.com
+Senha: @Rthur2309
+CEP: 64048-152
+Logradouro: Rua das Orquídeas
+Complemento: 
+Bairro: Jóquei
+localidade: Teresina
+UF: PI
+DDD: 86
+
