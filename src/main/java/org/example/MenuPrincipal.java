@@ -1,4 +1,8 @@
 package org.example;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -142,26 +146,102 @@ public class MenuPrincipal {
         System.out.println("=== 🔐 LOGIN ===");
 
         System.out.print("Email: ");
-        String email = scanner.nextLine();
+        String emailDigitado = scanner.nextLine().trim();
 
         System.out.print("Senha: ");
-        String senha = scanner.nextLine();
+        String senhaDigitada = scanner.nextLine();
 
-        // Simulação de login - em produção, verificar no arquivo/banco
-        System.out.println("⚠️  Funcionalidade de login completa requer integração com banco de dados");
-        System.out.println("📧 Email digitado: " + email);
+        if (emailDigitado.isEmpty() || senhaDigitada.isEmpty()) {
+            System.out.println("❌ Email e senha não podem ser vazios.");
+            pausar();
+            return;
+        }
 
-        // Para demonstração, criamos um usuário visitante de São Paulo
-        this.usuarioLogado = new Visitante();
-        usuarioLogado.setEmail(email);
-        usuarioLogado.setNome("Usuário Demo");
-        usuarioLogado.setSaldo(1000.0);
-        usuarioLogado.setCidade("São Paulo"); // Definindo cidade para demonstração
+        // Arquivo salvo em: usuarios/<email>.txt
+        Path caminho = Path.of("usuarios", emailDigitado + ".txt");
 
-        System.out.println("✅ Login simulado com sucesso!");
-        System.out.println("📍 Cidade: " + usuarioLogado.getCidade());
-        pausar();
-        menuPrincipal();
+        if (!Files.exists(caminho)) {
+            System.out.println("❌ Usuário não encontrado!");
+            System.out.println("📂 Arquivo esperado: " + caminho.toAbsolutePath());
+            pausar();
+            return;
+        }
+
+        try {
+            List<String> linhas = Files.readAllLines(caminho, StandardCharsets.UTF_8);
+
+            String nome = null;
+            String emailArquivo = null;
+            String senhaArquivo = null;
+            String assinatura = null;
+            String cep = null;
+            String cidade = null;
+            double saldo = 0.0;
+
+            for (String linha : linhas) {
+                if (linha.startsWith("Nome: ")) {
+                    nome = linha.substring("Nome: ".length()).trim();
+                } else if (linha.startsWith("Email: ")) {
+                    emailArquivo = linha.substring("Email: ".length()).trim();
+                } else if (linha.startsWith("Senha: ")) {
+                    senhaArquivo = linha.substring("Senha: ".length()).trim();
+                } else if (linha.startsWith("Assinatura: ")) {
+                    assinatura = linha.substring("Assinatura: ".length()).trim();
+                } else if (linha.startsWith("CEP: ")) {
+                    cep = linha.substring("CEP: ".length()).trim();
+                } else if (linha.startsWith("Cidade: ")) {
+                    cidade = linha.substring("Cidade: ".length()).trim();
+                } else if (linha.startsWith("Saldo: ")) {
+                    try {
+                        saldo = Double.parseDouble(linha.substring("Saldo: ".length()).trim());
+                    } catch (NumberFormatException e) {
+                        saldo = 0.0;
+                    }
+                }
+            }
+
+            if (senhaArquivo == null || !senhaArquivo.equals(senhaDigitada)) {
+                System.out.println("❌ Senha incorreta!");
+                pausar();
+                return;
+            }
+
+            // Descobrir o tipo de usuário pela assinatura
+            Pessoa usuario;
+            if (assinatura != null && assinatura.equalsIgnoreCase("VIP")) {
+                usuario = new Vip();
+            } else if (assinatura != null &&
+                    (assinatura.equalsIgnoreCase("Cliente+") || assinatura.equalsIgnoreCase("Cliente +"))) {
+                usuario = new ClienteMais();
+            } else {
+                // Qualquer coisa diferente vira Visitante
+                usuario = new Visitante();
+            }
+
+            // Preencher os dados básicos
+            usuario.setNome(nome != null ? nome : emailArquivo);
+            usuario.setEmail(emailArquivo != null ? emailArquivo : emailDigitado);
+            usuario.setAssinatura(assinatura != null ? assinatura : "Visitante");
+            usuario.setCep(cep);
+            usuario.setCidade(cidade);
+            usuario.setSaldo(saldo);
+
+            this.usuarioLogado = usuario;
+
+            System.out.println("\n✅ Login realizado com sucesso!");
+            System.out.println("👤 Usuário: " + usuario.getNome());
+            System.out.println("📧 Plano: " + usuario.getAssinatura());
+            if (usuario.getCidade() != null) {
+                System.out.println("📍 Cidade: " + usuario.getCidade());
+            }
+
+            pausar();
+            menuPrincipal();
+
+        } catch (IOException e) {
+            System.out.println("❌ Erro ao ler arquivo de usuário: " + e.getMessage());
+            pausar();
+        }
     }
 
     private void menuPrincipal() {
