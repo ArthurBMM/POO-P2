@@ -37,10 +37,17 @@ public class Relatorios {
         double totalGasto = usuario.getHistoricoAlugueis().stream()
                 .mapToDouble(hist -> {
                     // Extrair valor do histórico
-                    String[] partes = hist.split(" - ");
-                    if (partes.length > 2) {
-                        String valorStr = partes[2].replace("R$ ", "").trim();
-                        return Double.parseDouble(valorStr);
+                    try {
+                        // Extrair valor do histórico de forma mais robusta
+                        String[] partes = hist.split("R\\$ ");
+                        if (partes.length > 1) {
+                            String valorStr = partes[1].split(" ")[0].trim();
+                            // Substituir vírgula por ponto para conversão
+                            valorStr = valorStr.replace(",", ".");
+                            return Double.parseDouble(valorStr);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Erro ao processar histórico: " + hist);
                     }
                     return 0.0;
                 })

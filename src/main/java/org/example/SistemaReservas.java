@@ -17,26 +17,119 @@ public class SistemaReservas {
     }
 
     private void carregarEspacosIniciais() {
-        // Espaços em São Paulo
-        espacos.add(new Espaco("SALA01", "Sala de Reuniões Pequena", TipoEspaco.SALA_REUNIAO, 80.0, "1º Andar", "São Paulo", 6, false));
-        espacos.add(new Espaco("SALA02", "Sala de Reuniões Média", TipoEspaco.SALA_REUNIAO, 120.0, "1º Andar", "São Paulo", 10, false));
-        espacos.add(new Espaco("SALA03", "Sala de Reuniões Grande", TipoEspaco.SALA_REUNIAO, 200.0, "2º Andar", "São Paulo", 15, false));
-        espacos.add(new Espaco("AUD01", "Auditório Principal", TipoEspaco.AUDITORIO, 500.0, "Térreo", "São Paulo", 50, false));
+        // Array com todas as capitais brasileiras
+        String[] capitais = {
+                "São Paulo", "Rio de Janeiro", "Belo Horizonte", "Brasília", "Salvador",
+                "Fortaleza", "Recife", "Porto Alegre", "Curitiba", "Manaus",
+                "Belém", "Goiânia", "São Luís", "Maceió", "Campo Grande",
+                "Teresina", "Natal", "Cuiabá", "Aracaju", "Florianópolis",
+                "João Pessoa", "Macapá", "Rio Branco", "Vitória", "Porto Velho",
+                "Boa Vista", "Palmas"
+        };
 
-        // Espaços no Rio de Janeiro
-        espacos.add(new Espaco("RIO01", "Sala Copacabana", TipoEspaco.SALA_REUNIAO, 150.0, "Beira Mar", "Rio de Janeiro", 8, false));
-        espacos.add(new Espaco("RIO02", "Auditório Rio", TipoEspaco.AUDITORIO, 450.0, "Centro", "Rio de Janeiro", 40, false));
+        // Para cada capital, criar 3 espaços: Sala de Reunião, Sala Normal e Sala VIP
+        for (String capital : capitais) {
+            String sigla = capital.substring(0, 3).toUpperCase();
 
-        // Espaços em Brasília
-        espacos.add(new Espaco("BSB01", "Sala Esplanada", TipoEspaco.SALA_REUNIAO, 180.0, "Setor Comercial", "Brasília", 12, false));
+            // Sala de Reunião (comum)
+            espacos.add(new Espaco(
+                    sigla + "REU01",
+                    "Sala de Reuniões " + capital,
+                    TipoEspaco.SALA_REUNIAO,
+                    120.0,
+                    "Centro",
+                    capital,
+                    8,
+                    false
+            ));
 
-        // Espaços em Belo Horizonte
-        espacos.add(new Espaco("BH01", "Sala Savassi", TipoEspaco.SALA_REUNIAO, 90.0, "Savassi", "Belo Horizonte", 6, false));
+            // Sala Normal / Área Coworking
+            espacos.add(new Espaco(
+                    sigla + "COW01",
+                    "Área Coworking " + capital,
+                    TipoEspaco.AREA_COWORKING,
+                    40.0,
+                    "Centro",
+                    capital,
+                    20,
+                    false
+            ));
 
-        // Espaços exclusivos VIP
-        espacos.add(new Espaco("VIP01", "Sala VIP Executiva", TipoEspaco.SALA_VIP, 300.0, "3º Andar", "São Paulo", 8, true));
-        espacos.add(new Espaco("VIP02", "Sala de Reuniões Premium", TipoEspaco.SALA_REUNIAO, 400.0, "3º Andar", "Rio de Janeiro", 12, true));
-        espacos.add(new Espaco("VIP03", "Escritório Privativo VIP", TipoEspaco.ESCRITORIO_PRIVATIVO, 200.0, "3º Andar", "Brasília", 4, true));
+            // Sala VIP (exclusiva)
+            espacos.add(new Espaco(
+                    sigla + "VIP01",
+                    "Sala VIP Executiva " + capital,
+                    TipoEspaco.SALA_VIP,
+                    300.0,
+                    "Área Premium",
+                    capital,
+                    6,
+                    true
+            ));
+
+            // Adicionar alguns espaços extras para capitais maiores
+            if (capital.equals("São Paulo") || capital.equals("Rio de Janeiro") || capital.equals("Brasília")) {
+                // Auditório para capitais grandes
+                espacos.add(new Espaco(
+                        sigla + "AUD01",
+                        "Auditório " + capital,
+                        TipoEspaco.AUDITORIO,
+                        500.0,
+                        "Centro Empresarial",
+                        capital,
+                        50,
+                        false
+                ));
+
+                // Sala de Treinamento
+                espacos.add(new Espaco(
+                        sigla + "TRE01",
+                        "Sala de Treinamento " + capital,
+                        TipoEspaco.SALA_TREINAMENTO,
+                        200.0,
+                        "Centro",
+                        capital,
+                        25,
+                        false
+                ));
+            }
+        }
+
+        // Espaços adicionais específicos para demonstração
+        espacos.add(new Espaco(
+                "SPAUD02",
+                "Auditório Paulista",
+                TipoEspaco.AUDITORIO,
+                600.0,
+                "Paulista",
+                "São Paulo",
+                80,
+                false
+        ));
+
+        espacos.add(new Espaco(
+                "RJCOP01",
+                "Sala Copacabana",
+                TipoEspaco.SALA_REUNIAO,
+                180.0,
+                "Copacabana",
+                "Rio de Janeiro",
+                10,
+                false
+        ));
+
+        espacos.add(new Espaco(
+                "BSBESQ01",
+                "Sala Esplanada",
+                TipoEspaco.ESCRITORIO_PRIVATIVO,
+                250.0,
+                "Esplanada",
+                "Brasília",
+                4,
+                true
+        ));
+
+        System.out.println("✅ " + espacos.size() + " espaços carregados para " + capitais.length + " capitais");
     }
 
     public List<Espaco> getEspacosDisponiveis(Pessoa usuario) {
